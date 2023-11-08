@@ -1,7 +1,7 @@
 from ultralytics import YOLO
 import cv2
 import math 
-# start webcam
+# webcam oluşturma
 cap = cv2.VideoCapture(0)
 cap.set(3, 640)
 cap.set(4, 480)
@@ -9,7 +9,7 @@ cap.set(4, 480)
 # model
 model = YOLO("yolo-Weights/yolov8n.pt")
 
-# object classes
+# obje classları
 classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "train", "truck", "boat",
               "traffic light", "fire hydrant", "stop sign", "parking meter", "bench", "bird", "cat",
               "dog", "horse", "sheep", "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella",
@@ -22,7 +22,7 @@ classNames = ["person", "bicycle", "car", "motorbike", "aeroplane", "bus", "trai
               "teddy bear", "hair drier", "toothbrush"
               ]
 
-
+#nesne tespitinin görüntülenmesi
 while True:
     success, img = cap.read()
     results = model(img, stream=True)
@@ -38,35 +38,29 @@ while True:
 
     cv2.rectangle(img, (w1, h1), (w2, h2), (128, 0, 0), 2)
     
-    #cv2.imshow("Webcam", img)
-
-            # put box in cam
+    # nesneleri işaretleme
     for r in results:
         boxes = r.boxes
        
         for box in boxes:
-            # bounding box
-                 # coordinates
+
+            # koordinatlar
             x1, x2 , y1 , y2 = box.xyxy[0]
-            # convert to int value
             x1, x2 , y1, y2 = int(x1), int(x2), int(y1), int(y2)
             print(x1, x2, y1, y2)
-            if x2 < w2 and x1 < w2 and y2 < h2 and y1 < h2:
-                break
-            elif x1 > w1 and x2 > w1 and y1 > h1 and y2 > h1:
-                break
 
+            #dikdörtgenleme
             cv2.rectangle(img, (x1, y1), (x2, y2), (255, 0, 255), 2)
 
             # confidence
             confidence = math.ceil((box.conf[0]*100))/100
             print("Confidence --->",confidence)
 
-            # class name
+            # class
             cls = int(box.cls[0])
             print("Class name -->", classNames[cls])
 
-            # object details
+            # nesne bilgileri
             org = [x1, y1]
             font = cv2.FONT_HERSHEY_SIMPLEX
             fontScale = 1
@@ -75,14 +69,7 @@ while True:
 
             cv2.putText(img, classNames[cls], org, font, fontScale, color, thickness)
 
-            w1 = x1 * 0.25
-            h1 = y1 * 0.10
-            w2 = x2 * 0.75
-            h2 = y2 * 0.90
-
-            #cv2.rectangle(img, (w1, h2), (w2, h2),(128, 0, 0), 3 )
-
-
+    # programı durdurma
     cv2.imshow('Webcam', img)
     if cv2.waitKey(1) == ord('q'):
         break
